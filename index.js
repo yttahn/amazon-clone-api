@@ -23,20 +23,20 @@ app.get("/", (req, res) => {
 //     }
 // });
 
-app.post("/payment/create", async (req, res) => {
-  const total = parseInt(req.query.total);
-  if (total > 0) {
+app.post('/payment/create', async (req, res) => {
+  const { total } = req.query;  // total is in cents
+
+  try {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: total,
-      currency: "usd",
+      currency: 'usd',
     });
-    res.status(201).json({
+
+    res.status(201).send({
       clientSecret: paymentIntent.client_secret,
     });
-  } else {
-    res.status(403).json({
-      message: "total must be  greater than 0",
-    });
+  } catch (error) {
+    res.status(500).send({ error: 'Payment Intent creation failed' });
   }
 });
 app.listen(5000, (err) => {
